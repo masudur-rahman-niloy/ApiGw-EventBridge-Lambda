@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sam template to integrate api gateway -> eventbridge -> lambda
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  EventBridgeInvokeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: eventbridge_function/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        EventFromEventBus:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source:
+                - MyCustomEvent
+
+
+  EventBridgeApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefinitionBody:
+        'Fn::Transform':
+          Name: 'AWS::Include'
+          Parameters:
+            Location: './api_definition.yaml'
+
+  HttpApiRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: ApiWriteToEventBridge
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              Action:
+              - events:PutEvents
+              Effect: Allow
+              Resource:
+                - !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+
+
+Outputs:
+  ApiEndpoint:
+    Description: "API endpoint URL"
+    Value: !Sub "https://${EventBridgeApi}.execute-api.${AWS::Region}.amazonaws.com"
