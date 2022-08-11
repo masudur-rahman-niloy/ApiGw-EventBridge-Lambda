@@ -88,7 +88,7 @@ Now we'll see the lambda function definition of SAM template
 
 In the above block we can see the lambda function is being triggered from CloudWatchEvent(EventBridge). And the pattern match has to be from source `MyCustomEvent` which we declared in `api_definition.yaml`
 
-The lambda function has a simple logger that logs the input event. Nothing fancy.
+The lambda function has a simple logger that logs the input event.
 
 The output block looks like this
 
