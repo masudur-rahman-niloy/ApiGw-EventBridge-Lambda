@@ -112,4 +112,6 @@ The output of lambda function is below
 
 We've successfully integrated API gateway with EventBridge and Lambda.
 
+You can get the source code in the following link
 
+https://github.com/masudur-rahman-niloy/ApiGw-EventBridge-Lambda
